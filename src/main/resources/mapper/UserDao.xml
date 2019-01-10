@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.UserDao">
+	<resultMap id="BaseResultMap" type="com.tinz.ys.entity.UserInfo">
+	    <id column="ID" jdbcType="INTEGER" property="id" />
+	    <result column="用户名" jdbcType="VARCHAR" property="username" />
+	    <result column="中文用户名" jdbcType="VARCHAR" property="cusername" />
+	    <result column="行政区名称" jdbcType="VARCHAR" property="district" />
+	</resultMap>
+  
+	<select id="queryById" resultMap="BaseResultMap" parameterType="Integer">
+		SELECT
+			u.ID,
+			u.用户名,
+			u.中文用户名,
+			c.行政区名称
+		FROM
+			用户 AS u
+		LEFT JOIN
+			行政区编码 AS c
+		ON
+			u.行政区ID = c.ID
+		WHERE
+			u.ID = #{id}
+	</select>
+	<select id="login" resultType="Integer">
+		SELECT ID FROM dbo.用户 WHERE 用户名 = #{username} AND 密码 = #{password}
+	</select>
+	<select id="loginUser" resultType="User">
+		SELECT 
+			ID AS id,
+			用户名 AS username,
+			中文用户名 AS cusername,
+			密码 AS password 
+		FROM dbo.用户 WHERE 用户名 = #{username} AND 密码 = #{password}
+	</select>
+	<select id="getUserByUsername" resultType="User">
+		SELECT
+			ID AS id,
+			用户名 AS username,
+			中文用户名 AS cusername,
+			密码 AS password
+		FROM
+			dbo.用户
+		WHERE
+			用户名 = #{username}
+	</select>
+	<select id="getUserInfoByUsername" resultType="UserInfo">
+		SELECT
+			u.ID AS id,
+			u.用户名 AS username,
+			u.中文用户名 AS cusername,
+			u.企业基本信息ID AS psId,
+			r.角色名 AS role
+		FROM
+			用户 AS u,角色用户 AS ru,角色 AS r
+		WHERE
+			u.用户名 = #{username} AND u.ID = ru.用户ID AND ru.角色ID = r.ID
+	</select>
+	<select id="queryAll" resultType="User" parameterType="Integer">
+		SELECT TOP ${limit} 
+			ID AS id,
+			用户名 AS username,
+			中文用户名 AS cusername,
+			密码 AS password
+		FROM dbo.用户 
+		<where>
+			ID NOT IN (SELECT TOP ${offset} ID FROM dbo.用户) 
+		</where>
+	</select>
+	<!--select id="queryAll" resultType="User">
+		SELECT
+			ID,
+			用户名,
+			中文用户名,
+			密码
+		FROM
+			dbo.用户
+		ORDER BY
+			ID
+		LIMIT #{offset}, #{limit}
+	</select-->
+	
+</mapper>

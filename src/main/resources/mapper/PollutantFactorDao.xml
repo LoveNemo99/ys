@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.PollutantFactorDao">
+  
+	<select id="getById" resultType="PollutantFactor">
+		SELECT
+			e.ID as id,
+			e.污染物代码 as code,
+			e.名称 as name,
+			e.一级上限 as upperLimit,
+			e.一级下限 as lowerLimit,
+			u1.计量单位名称 as avgUnit,
+			u2.计量单位名称 as couUnit
+		FROM
+			污染物编码 AS e
+		LEFT JOIN
+			计量单位编码 AS u1
+		ON
+			e.浓度计量单位ID = u1.ID
+		LEFT JOIN
+			计量单位编码 AS u2
+		ON
+			e.排放量计量单位ID = u2.ID
+		<where>
+			<if test = "id != null">
+				e.ID = #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getByName" resultType="PollutantFactor">
+		SELECT
+			e.ID as id,
+			e.污染物代码 as code,
+			e.名称 as name,
+			e.一级上限 as upperLimit,
+			e.一级下限 as lowerLimit,
+			u1.计量单位名称 as avgUnit,
+			u2.计量单位名称 as couUnit
+		FROM
+			污染物编码 AS e
+		LEFT JOIN
+			计量单位编码 AS u1
+		ON
+			e.浓度计量单位ID = u1.ID
+		LEFT JOIN
+			计量单位编码 AS u2
+		ON
+			e.排放量计量单位ID = u2.ID
+		<where>
+			<if test = "name != null">
+				e.名称 = #{name}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAll" resultType="PollutantFactor">
+		SELECT
+			e.ID as id,
+			e.污染物代码 as code,
+			e.名称 as name,
+			e.一级上限 as upperLimit,
+			e.一级下限 as lowerLimit,
+			u1.计量单位名称 as avgUnit,
+			u2.计量单位名称 as couUnit
+		FROM
+			污染物编码 AS e
+		LEFT JOIN
+			计量单位编码 AS u1
+		ON
+			e.浓度计量单位ID = u1.ID
+		LEFT JOIN
+			计量单位编码 AS u2
+		ON
+			e.排放量计量单位ID = u2.ID
+	</select>
+</mapper>

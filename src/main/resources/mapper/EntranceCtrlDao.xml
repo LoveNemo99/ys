@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.EntranceCtrlDao">
+	<select id="queryRecord" resultType="ValveCtrl">
+		SELECT TOP ${limit} 
+			r.ID as id,
+			e.企业名称 as psName,
+			p.排放口编码 as portName,
+			r.开启方式 as method,
+			r.开启时间 as time,
+			r.卡号 as cardNum,
+			r.卡类型 as cardType,
+			r.执行结果 as result
+		FROM
+			门禁控制 AS r
+		LEFT JOIN
+			企业基本信息 AS e
+		ON
+			e.ID = r.企业基本信息ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			p.ID = r.企业排口ID	
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+			AND r.ID NOT IN (
+				SELECT TOP ${offset} ID FROM 门禁控制 AS r2
+				<where>
+					<if test = "psId != null">
+						r2.企业基本信息ID = #{psId}
+					</if>
+					<if test = "portId != null">
+						AND r2.企业排口ID = #{portId}
+					</if>
+				</where>
+				ORDER BY 
+				<choose>
+			        <when test="sort!=null">
+			                ${sort}
+			            <if test="order!=null">
+			                ${order}
+			            </if>
+			            <if test="order==null">
+			                desc
+			            </if>
+			        </when>
+			        <otherwise>
+			            ID
+			            <if test="order!=null">
+				        	${order}
+				        </if>
+				        <if test="order==null">
+			                desc
+			            </if>
+			        </otherwise>
+		    	</choose>) 
+		</where>
+		ORDER BY 
+		<choose>
+	        <when test="sort!=null">
+	                ${sort}
+	            <if test="order!=null">
+	                ${order}
+	            </if>
+	            <if test="order==null">
+	                desc
+	            </if>
+	        </when>
+	        <otherwise>
+	            ID
+	            <if test="order!=null">
+		        	${order}
+		        </if>
+		        <if test="order==null">
+	                desc
+	            </if>
+	        </otherwise>
+    	</choose>
+	</select>
+	<select id="queryCount" resultType="Integer">
+		SELECT COUNT(*) FROM 门禁控制 AS r
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+		</where>
+	</select>
+	<insert id="control" parameterType="EntranceCtrl">
+		INSERT into 门禁控制(企业基本信息ID, 企业排口ID,开启时间,开启方式,执行结果,QN,是否同步) 
+		VALUES(#{psId}, #{portId},#{time},#{method},#{result},#{qn},#{synchronize})
+	</insert>
+</mapper>

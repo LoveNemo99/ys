@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.RainfallDataDao">
+  
+	<select id="queryPollutant" resultType="PollutantId">
+		SELECT
+			MAX(CASE e.污染物代码 WHEN  'w00000' THEN e.ID END) AS w00000Id,
+			MAX(CASE e.污染物代码 WHEN  'w01018' THEN e.ID END) AS w01018Id,
+			MAX(CASE e.污染物代码 WHEN  'w21003' THEN e.ID END) AS w21003Id,
+			MAX(CASE e.污染物代码 WHEN  'w01001' THEN e.ID END) AS w01001Id,
+			MAX(CASE e.污染物代码 WHEN  'w01014' THEN e.ID END) AS w01014Id
+		FROM
+			污染物编码 AS e
+	</select>
+	
+	<select id="queryReport" resultType="RainfallData" parameterType="PollutantId">
+		SELECT mmm.*,d.*,e.企业名称 as psName,p.排放口编码 as portName FROM
+		(SELECT 
+			mm.ID AS ID,
+			mm.企业基本信息ID AS psId,
+			mm.企业排口ID AS portId,
+			mm.监测时间 AS time,
+			mm.降雨序号 AS num,
+			mm.RTD AS rtd,
+			mm.累计量 AS cou
+		FROM 
+			主实时数据 AS mm
+		<where>
+			<if test = "num != null">
+				mm.降雨序号 = #{num}
+			</if>
+			<if test = "psId != null">
+				AND mm.企业基本信息ID = #{psId}
+			</if>
+		</where>) 
+		AS mmm
+		LEFT JOIN
+			企业基本信息 AS e
+		ON
+			e.ID = mmm.psId
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			p.ID = mmm.portId
+		LEFT JOIN
+		(SELECT
+			c.主实时数据ID AS id,
+			MAX(CASE c.污染物编码ID WHEN  #{factors.w00000Id} THEN c.RTD END) AS w00000,
+			MAX(CASE c.污染物编码ID WHEN  #{factors.w01018Id} THEN c.RTD END) AS w01018,
+			MAX(CASE c.污染物编码ID WHEN  #{factors.w21003Id} THEN c.RTD END) AS w21003,
+			MAX(CASE c.污染物编码ID WHEN  #{factors.w01001Id} THEN c.RTD END) AS w01001,
+			MAX(CASE c.污染物编码ID WHEN  #{factors.w01014Id} THEN c.RTD END) AS w01014
+		FROM
+			从实时数据 AS c
+		WHERE c.主实时数据ID IN (SELECT m.ID FROM 主实时数据 AS m <where>
+			<if test = "num != null">
+				m.降雨序号 = #{num}
+			</if>
+			<if test = "psId != null">
+				AND m.企业基本信息ID = #{psId}
+			</if>
+		</where>)
+		GROUP BY c.主实时数据ID)
+		AS d
+		ON
+			d.id = mmm.ID
+	</select>
+</mapper>
+<!-- WHERE c.主实时数据ID IN (SELECT m.ID FROM 主实时数据 AS m WHERE m.降雨序号 = #{num} AND m.企业基本信息ID = #{psId}) -->

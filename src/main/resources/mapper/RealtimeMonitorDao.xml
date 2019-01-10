@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.RealtimeMonitorDao">
+  
+	<select id="getByPsId" resultType="RealtimeMonitor">
+		SELECT
+			e.企业基本信息ID as psId,
+			b.企业名称 as psName,
+			p.排放口编码 as port,
+			e.实时数据时间 as time,
+			s1.代码名称 as onlineState,
+			s2.代码名称 as electricState,
+			e.瞬时量 as instant,
+			e.当前采样瓶号 as bottle,
+			e.收集池阀门状态 as sjcValveState,
+			e.排水口阀门状态 as pskValveState,
+			e.泵状态 as bumpState,
+			e.液位状态 as levelState,
+			e.门禁状态 as entranceState,
+			b.企业状态 as psState,
+			c1.瞬时量 as cod,
+			c2.瞬时量 as ph,
+			c3.瞬时量 as dianDaoLv
+		FROM
+			主实时监控 AS e
+		LEFT JOIN
+			企业基本信息 AS b
+		ON
+			e.企业基本信息ID = b.ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			e.企业排口ID = p.ID
+		LEFT JOIN
+			系统代码 AS s1
+		ON
+			e.在线状态ID = s1.ID
+		LEFT JOIN
+			系统代码 AS s2
+		ON
+			e.市电状态ID = s2.ID
+		LEFT JOIN 
+			从实时监控 AS c1
+		ON
+			c1.主实时监控ID = e.ID 
+		AND 
+			c1.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = 'COD')
+		LEFT JOIN 
+			从实时监控 AS c2
+		ON
+			c2.主实时监控ID = e.ID 
+		AND 
+			c2.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = 'PH')
+		LEFT JOIN 
+			从实时监控 AS c3
+		ON
+			c3.主实时监控ID = e.ID 
+		AND 
+			c3.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = '电导率')
+		<where>
+			<if test = "psId != null">
+				AND e.企业基本信息ID = #{psId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAll" resultType="RealtimeMonitor">
+		SELECT
+			e.企业基本信息ID as psId,
+			b.企业名称 as psName,
+			p.排放口编码 as port,
+			e.实时数据时间 as time,
+			s1.代码名称 as onlineState,
+			s2.代码名称 as electricState,
+			e.瞬时量 as instant,
+			e.当前采样瓶号 as bottle,
+			e.收集池阀门状态 as sjcValveState,
+			e.排水口阀门状态 as pskValveState,
+			e.泵状态 as bumpState,
+			e.液位状态 as levelState,
+			e.门禁状态 as entranceState,
+			b.企业状态 as psState,
+			c1.瞬时量 as cod,
+			c2.瞬时量 as ph,
+			c3.瞬时量 as dianDaoLv
+		FROM
+			主实时监控 AS e
+		LEFT JOIN
+			企业基本信息 AS b
+		ON
+			e.企业基本信息ID = b.ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			e.企业排口ID = p.ID
+		LEFT JOIN
+			系统代码 AS s1
+		ON
+			e.在线状态ID = s1.ID
+		LEFT JOIN
+			系统代码 AS s2
+		ON
+			e.市电状态ID = s2.ID
+		LEFT JOIN 
+			从实时监控 AS c1
+		ON
+			c1.主实时监控ID = e.ID 
+		AND 
+			c1.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = 'COD')
+		LEFT JOIN 
+			从实时监控 AS c2
+		ON
+			c2.主实时监控ID = e.ID 
+		AND 
+			c2.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = 'PH')
+		LEFT JOIN 
+			从实时监控 AS c3
+		ON
+			c3.主实时监控ID = e.ID 
+		AND 
+			c3.污染物编码ID = (SELECT ID FROM 污染物编码 WHERE 名称 = '电导率')
+	</select>
+
+</mapper>

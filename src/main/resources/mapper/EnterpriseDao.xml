@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.EnterpriseDao">
+  
+	<select id="getById" resultType="Enterprise">
+		SELECT
+			e.ID as id,
+			e.污染源编码 as code,
+			e.企业名称 as name,
+			e.地址 as address,
+			e.中心经度 as longitude,
+			e.中心纬度 as latitude,
+			e.环保负责人 as manInCharge,
+			e.企业状态 as state,
+			c.行政区名称 as district,
+			z.登记注册类型 as registerType,
+			h.行业名称 as industryType
+		FROM
+			企业基本信息 AS e
+		LEFT JOIN
+			行政区编码 AS c
+		ON
+			e.行政区编码ID = c.ID
+		LEFT JOIN
+			注册类型编码 AS z
+		ON
+			e.注册类型编码ID = z.ID
+		LEFT JOIN
+			行业分类编码 AS h
+		ON
+			e.行业分类编码ID = h.ID
+		<where>
+			<if test = "id != null">
+				e.ID = #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAll" resultType="Enterprise">
+		SELECT
+			e.ID as id,
+			e.污染源编码 as code,
+			e.企业名称 as name,
+			e.地址 as address,
+			e.中心经度 as longitude,
+			e.中心纬度 as latitude,
+			e.环保负责人 as manInCharge,
+			e.企业状态 as state,
+			c.行政区名称 as district,
+			z.登记注册类型 as registerType,
+			h.行业名称 as industryType
+		FROM
+			企业基本信息 AS e
+		LEFT JOIN
+			行政区编码 AS c
+		ON
+			e.行政区编码ID = c.ID
+		LEFT JOIN
+			注册类型编码 AS z
+		ON
+			e.注册类型编码ID = z.ID
+		LEFT JOIN
+			行业分类编码 AS h
+		ON
+			e.行业分类编码ID = h.ID
+	</select>
+	<select id="getTree" resultType="Tree">
+		SELECT 
+			e.ID as id,
+			e.污染源编码 as value,
+			e.企业名称 as text
+		FROM 
+			企业基本信息 AS e
+		<where>
+			<if test = "id != null">
+				e.ID = #{id}
+			</if>
+		</where>
+	</select>
+	<select id="getPortTree" resultType="Tree">
+		SELECT 
+			e.ID as id,
+			e.MN号 as value,
+			e.排放口编码 as text
+		FROM 
+			企业排口 AS e
+		<where>
+			<if test = "id != null">
+				e.企业基本信息ID = #{id}
+			</if>
+		</where>
+	</select>
+</mapper>

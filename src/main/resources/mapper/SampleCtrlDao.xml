@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.SampleCtrlDao">
+	<select id="queryRecord" resultType="SampleCtrl">
+		SELECT TOP ${limit} 
+			r.ID as id,
+			e.企业名称 as psName,
+			p.排放口编码 as portName,
+			r.反控设备类型 as deviceType,
+			r.操作时间 as operationTime,
+			r.采样时间 as sampleTime,
+			s1.代码名称 as method,
+			s2.代码名称 as result
+		FROM
+			反控采样 AS r
+		LEFT JOIN
+			企业基本信息 AS e
+		ON
+			e.ID = r.企业基本信息ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			p.ID = r.企业排口ID
+		LEFT JOIN
+			系统代码 AS s1
+		ON
+			s1.ID = r.采样方式ID
+		LEFT JOIN
+			系统代码 AS s2
+		ON
+			s2.ID = r.执行结果标志ID
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+			AND r.ID NOT IN (
+				SELECT TOP ${offset} ID FROM 反控采样 AS r2
+				<where>
+					<if test = "psId != null">
+						r2.企业基本信息ID = #{psId}
+					</if>
+					<if test = "portId != null">
+						AND r2.企业排口ID = #{portId}
+					</if>
+				</where>
+				ORDER BY 
+				<choose>
+			        <when test="sort!=null">
+			                ${sort}
+			            <if test="order!=null">
+			                ${order}
+			            </if>
+			            <if test="order==null">
+			                desc
+			            </if>
+			        </when>
+			        <otherwise>
+			            ID
+			            <if test="order!=null">
+				        	${order}
+				        </if>
+				        <if test="order==null">
+			                desc
+			            </if>
+			        </otherwise>
+		    	</choose>) 
+		</where>
+		ORDER BY 
+		<choose>
+	        <when test="sort!=null">
+	                ${sort}
+	            <if test="order!=null">
+	                ${order}
+	            </if>
+	            <if test="order==null">
+	                desc
+	            </if>
+	        </when>
+	        <otherwise>
+	            ID
+	            <if test="order!=null">
+		        	${order}
+		        </if>
+		        <if test="order==null">
+	                desc
+	            </if>
+	        </otherwise>
+    	</choose>
+	</select>
+	<select id="queryCount" resultType="Integer">
+		SELECT COUNT(*) FROM 反控采样 AS r
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+		</where>
+	</select>
+	<insert id="control" parameterType="SampleCtrl">
+		INSERT into 反控采样(企业基本信息ID, 企业排口ID,操作时间,采样时间,采样方式ID,反控设备类型,执行结果标志ID,QN,是否同步) 
+		VALUES(#{psId}, #{portId},#{operationTime},#{sampleTime},#{methodId},#{deviceType},#{resultId},#{qn},#{synchronize})
+	</insert>
+</mapper>

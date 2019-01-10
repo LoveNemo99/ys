@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.StatisticYearDao">
+	<select id="queryRecord" resultType="StatisticYear">
+		SELECT TOP ${limit} 
+			r.ID as id,
+			e.企业名称 as psName,
+			p.排放口编码 as portName,
+			r.雨水排放量 as rainfallPi,
+			r.降雨开始时间 as startTime,
+			r.COD as cod,
+			r.COD总量 as codCou,
+			r.氨氮 as andan,
+			r.氨氮总量 as andanCou,
+			r.PH as ph
+		FROM
+			SView_年统计数据 AS r
+		LEFT JOIN
+			企业基本信息 AS e
+		ON
+			e.ID = r.企业基本信息ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			p.ID = r.企业排口ID
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+			AND r.ID NOT IN (
+				SELECT TOP ${offset} ID FROM SView_年统计数据 AS r2
+				<where>
+					<if test = "psId != null">
+						r2.企业基本信息ID = #{psId}
+					</if>
+					<if test = "portId != null">
+						AND r2.企业排口ID = #{portId}
+					</if>
+				</where>) 
+		</where>
+		ORDER BY 
+		<choose>
+	        <when test="sort!=null">
+	                ${sort}
+	            <if test="order!=null">
+	                ${order}
+	            </if>
+	            <if test="order==null">
+	                asc
+	            </if>
+	        </when>
+	        <otherwise>
+	            ID
+	            <if test="order!=null">
+		        	${order}
+		        </if>
+		        <if test="order==null">
+	                asc
+	            </if>
+	        </otherwise>
+    	</choose>
+	</select>
+	<select id="queryCount" resultType="Integer">
+		SELECT COUNT(*) FROM SView_年统计数据 AS r
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "portId != null">
+				AND r.企业排口ID = #{portId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryRecordByYear" resultType="StatisticYear">
+		SELECT TOP ${limit} 
+			r.ID as id,
+			e.企业名称 as psName,
+			p.排放口编码 as portName,
+			r.雨水排放量 as rainfallPi,
+			r.降雨开始时间 as startTime,
+			r.COD as cod,
+			r.COD总量 as codCou,
+			r.氨氮 as andan,
+			r.氨氮总量 as andanCou,
+			r.PH as ph
+		FROM
+			SView_年统计数据 AS r
+		LEFT JOIN
+			企业基本信息 AS e
+		ON
+			e.ID = r.企业基本信息ID
+		LEFT JOIN
+			企业排口 AS p
+		ON
+			p.ID = r.企业排口ID
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "startYear != null">
+				AND r.降雨开始时间 >= #{startYear}
+			</if>
+			<if test = "endYear != null">
+				AND r.降雨开始时间 <![CDATA[ <= ]]> #{endYear}
+			</if>
+			AND r.ID NOT IN (
+				SELECT TOP ${offset} ID FROM SView_年统计数据 AS r2
+				<where>
+					<if test = "psId != null">
+						r2.企业基本信息ID = #{psId}
+					</if>
+					<if test = "startYear != null">
+						AND r.降雨开始时间 >= #{startYear}
+					</if>
+					<if test = "endYear != null">
+						AND r.降雨开始时间 <![CDATA[ <= ]]> #{endYear}
+					</if>
+				</where>) 
+		</where>
+		ORDER BY 
+		<choose>
+	        <when test="sort!=null">
+	                ${sort}
+	            <if test="order!=null">
+	                ${order}
+	            </if>
+	            <if test="order==null">
+	                asc
+	            </if>
+	        </when>
+	        <otherwise>
+	            ID
+	            <if test="order!=null">
+		        	${order}
+		        </if>
+		        <if test="order==null">
+	                asc
+	            </if>
+	        </otherwise>
+    	</choose>
+	</select>
+	<select id="queryCountByYear" resultType="Integer">
+		SELECT COUNT(*) FROM SView_年统计数据 AS r
+		<where>
+			<if test = "psId != null">
+				r.企业基本信息ID = #{psId}
+			</if>
+			<if test = "startYear != null">
+				AND r.降雨开始时间 >= #{startYear}
+			</if>
+			<if test = "endYear != null">
+				AND r.降雨开始时间 <![CDATA[ <= ]]> #{endYear}
+			</if>
+		</where>
+	</select>
+</mapper>

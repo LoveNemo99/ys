@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tinz.ys.dao.RainfallRecordDao">
+  
+	<select id="getById" resultType="RainfallRecord">
+		SELECT
+			e.ID as id,
+			e.降雨开始时间 as startTime,
+			e.降雨结束时间 as endTime,
+			e.降雨序号 as num,
+			e.是否处理 as handle
+		FROM
+			降雨统计 AS e
+		<where>
+			<if test = "id != null">
+				e.ID = #{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAll" resultType="RainfallRecord">
+		SELECT
+			e.ID as id,
+			e.降雨开始时间 as startTime,
+			e.降雨结束时间 as endTime,
+			e.降雨序号 as num,
+			e.是否处理 as handle
+		FROM
+			降雨统计 AS e
+	</select>
+	<select id="getTree" resultType="Tree">
+		SELECT 
+			e.ID as id,
+			e.降雨序号 as value,
+			e.降雨序号 as text
+		FROM 
+			降雨统计 AS e
+		<where>
+			<if test = "startDay != null">
+				e.降雨开始时间 >= #{startDay}
+			</if>
+			<if test = "endDay != null">
+				AND e.降雨开始时间 <![CDATA[ <= ]]> #{endDay}
+			</if>
+		</where>
+	</select>
+</mapper>
